@@ -93,7 +93,7 @@ export const Profile: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">{stats.level}</div>
                 <div className="text-sm text-muted-foreground">Level</div>
@@ -258,7 +258,7 @@ export const Profile: React.FC = () => {
             <CardTitle>Your Stats</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-purple-50 rounded-lg">
                 <div className="text-2xl font-bold text-purple-600">{stats.mealsLogged}</div>
                 <div className="text-sm text-muted-foreground">Meals Logged</div>
@@ -274,6 +274,18 @@ export const Profile: React.FC = () => {
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <div className="text-2xl font-bold text-green-600">{stats.achievements.filter(a => a.earned).length}</div>
                 <div className="text-sm text-muted-foreground">Achievements</div>
+              </div>
+              <div className="text-center p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-200">
+                <div className="text-2xl font-bold text-emerald-600">
+                  {weightLoss > 0 ? `${weightLoss.toFixed(1)}` : '0.0'}
+                </div>
+                <div className="text-sm text-muted-foreground">Weight Lost (lbs)</div>
+              </div>
+              <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                <div className="text-2xl font-bold text-blue-600">
+                  {progressToGoal > 0 ? `${Math.min(100, progressToGoal).toFixed(1)}%` : '0%'}
+                </div>
+                <div className="text-sm text-muted-foreground">Goal Progress</div>
               </div>
             </div>
           </CardContent>

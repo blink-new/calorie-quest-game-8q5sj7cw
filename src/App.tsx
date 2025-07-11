@@ -4,9 +4,11 @@ import { CalorieTracker } from './components/CalorieTracker'
 import { Profile } from './components/Profile'
 import { Achievements } from './components/Achievements'
 import { Settings } from './components/Settings'
+import { Shop } from './components/Shop'
 import { Navigation } from './components/Navigation'
 import { NotificationProvider } from './contexts/NotificationContext'
 import { GameProvider } from './contexts/GameContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import { WelcomeScreen } from './components/WelcomeScreen'
 
 function App() {
@@ -24,26 +26,29 @@ function App() {
     setShowWelcome(false)
   }
 
-  if (showWelcome) {
-    return <WelcomeScreen onComplete={handleWelcomeComplete} />
-  }
-
   return (
     <NotificationProvider>
       <GameProvider>
-        <Router>
-          <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-            <div className="container mx-auto px-4 py-6 max-w-md">
-              <Routes>
-                <Route path="/" element={<CalorieTracker />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/achievements" element={<Achievements />} />
-                <Route path="/settings" element={<Settings />} />
-              </Routes>
-              <Navigation />
-            </div>
-          </div>
-        </Router>
+        <ThemeProvider>
+          {showWelcome ? (
+            <WelcomeScreen onComplete={handleWelcomeComplete} />
+          ) : (
+            <Router>
+              <div className="min-h-screen">
+                <div className="container mx-auto px-4 py-6 max-w-md">
+                  <Routes>
+                    <Route path="/" element={<CalorieTracker />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/achievements" element={<Achievements />} />
+                    <Route path="/shop" element={<Shop />} />
+                    <Route path="/settings" element={<Settings />} />
+                  </Routes>
+                  <Navigation />
+                </div>
+              </div>
+            </Router>
+          )}
+        </ThemeProvider>
       </GameProvider>
     </NotificationProvider>
   )

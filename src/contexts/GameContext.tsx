@@ -40,6 +40,8 @@ interface FoodEntry {
 interface GameContextType {
   stats: GameStats
   foodEntries: FoodEntry[]
+  currentTheme: string
+  ownedThemes: string[]
   addFoodEntry: (entry: Omit<FoodEntry, 'id' | 'timestamp'>) => void
   updateWeight: (weight: number) => void
   setTargetWeight: (weight: number) => void
@@ -48,6 +50,7 @@ interface GameContextType {
   checkAchievements: () => void
   getTodaysEntries: () => FoodEntry[]
   getCaloriesForDate: (date: Date) => number
+  purchaseTheme: (themeId: string, price: number) => void
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -55,11 +58,11 @@ const GameContext = createContext<GameContextType | undefined>(undefined)
 const defaultStats: GameStats = {
   level: 1,
   xp: 0,
-  xpToNextLevel: 100,
+  xpToNextLevel: 100, // Level 1 still needs 100 XP, but subsequent levels need much more
   streak: 0,
   totalDays: 0,
   achievements: [],
-  coins: 0,
+  coins: 50, // Give players starting coins to explore the shop
   caloriesLogged: 0,
   mealsLogged: 0,
   daysActive: 0
@@ -141,12 +144,16 @@ const achievements: Achievement[] = [
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [stats, setStats] = useState<GameStats>(defaultStats)
   const [foodEntries, setFoodEntries] = useState<FoodEntry[]>([])
+  const [currentTheme, setCurrentTheme] = useState<string>('default')
+  const [ownedThemes, setOwnedThemes] = useState<string[]>(['default'])
   const { showInAppNotification } = useNotifications()
 
   useEffect(() => {
     // Load data from localStorage
     const savedStats = localStorage.getItem('gameStats')
     const savedEntries = localStorage.getItem('foodEntries')
+    const savedTheme = localStorage.getItem('currentTheme')
+    const savedOwnedThemes = localStorage.getItem('ownedThemes')
     
     if (savedStats) {
       const parsedStats = JSON.parse(savedStats)
@@ -165,13 +172,23 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         timestamp: new Date(entry.timestamp)
       })))
     }
+
+    if (savedTheme) {
+      setCurrentTheme(savedTheme)
+    }
+
+    if (savedOwnedThemes) {
+      setOwnedThemes(JSON.parse(savedOwnedThemes))
+    }
   }, [])
 
   useEffect(() => {
     // Save data to localStorage whenever it changes
     localStorage.setItem('gameStats', JSON.stringify(stats))
     localStorage.setItem('foodEntries', JSON.stringify(foodEntries))
-  }, [stats, foodEntries])
+    localStorage.setItem('currentTheme', currentTheme)
+    localStorage.setItem('ownedThemes', JSON.stringify(ownedThemes))
+  }, [stats, foodEntries, currentTheme, ownedThemes])
 
   const addFoodEntry = (entry: Omit<FoodEntry, 'id' | 'timestamp'>) => {
     const newEntry: FoodEntry = {
@@ -182,20 +199,32 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setFoodEntries(prev => [...prev, newEntry])
     
-    // Update stats
-    const xpGained = Math.floor(entry.calories / 10) // 1 XP per 10 calories
+    // Update stats - Made XP much harder to earn
+    const xpGained = Math.max(1, Math.floor(entry.calories / 50)) // Changed from 10 to 50 calories per XP
     const newXp = stats.xp + xpGained
-    const newLevel = Math.floor(newXp / 100) + 1
+    // Exponential leveling: level 1 needs 100 XP, level 2 needs 250 XP, level 3 needs 450 XP, etc.
+    const xpRequiredForLevel = (level: number) => level * level * 50 + 50
+    
+    let newLevel = stats.level
+    let totalXpNeeded = xpRequiredForLevel(newLevel)
+    
+    // Calculate new level based on exponential requirements
+    while (newXp >= totalXpNeeded) {
+      newLevel++
+      totalXpNeeded = xpRequiredForLevel(newLevel)
+    }
+    
     const leveledUp = newLevel > stats.level
+    const xpToNextLevel = totalXpNeeded - newXp
 
     setStats(prev => ({
       ...prev,
       xp: newXp,
       level: newLevel,
-      xpToNextLevel: (newLevel * 100) - newXp,
+      xpToNextLevel: xpToNextLevel,
       caloriesLogged: prev.caloriesLogged + entry.calories,
       mealsLogged: prev.mealsLogged + 1,
-      coins: prev.coins + (leveledUp ? 50 : 10)
+      coins: prev.coins + (leveledUp ? 100 : 5) // Increased level-up reward, reduced meal reward
     }))
 
     // Update streak
@@ -209,10 +238,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Show notifications
     if (leveledUp) {
-      showInAppNotification(`🎉 Level Up! You're now level ${newLevel}!`, 'success')
+      showInAppNotification(`🎉 Level Up! You're now level ${newLevel}! +100 coins!`, 'success')
     }
     
-    showInAppNotification(`+${xpGained} XP! Great job logging your meal!`, 'success')
+    showInAppNotification(`+${xpGained} XP! ${leveledUp ? '' : `${xpToNextLevel} XP to next level`}`, 'success')
   }
 
   const updateWeight = (weight: number) => {
@@ -247,12 +276,17 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const yesterdayString = yesterday.toDateString()
       
       if (lastLogDate === yesterdayString) {
-        // Continue streak
+        // Continue streak - reward bonus coins for maintaining streaks
+        const streakBonus = Math.min(20, Math.floor((stats.streak + 1) / 3) * 5) // 5 coins per 3-day streak milestone
         setStats(prev => ({
           ...prev,
           streak: prev.streak + 1,
-          daysActive: prev.daysActive + 1
+          daysActive: prev.daysActive + 1,
+          coins: prev.coins + streakBonus
         }))
+        if (streakBonus > 0) {
+          showInAppNotification(`🔥 Streak bonus! +${streakBonus} coins for ${stats.streak + 1} days!`, 'success')
+        }
       } else if (lastLogDate) {
         // Streak broken
         setStats(prev => ({
@@ -334,7 +368,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         showInAppNotification(`🏆 Achievement Unlocked: ${achievement.title}!`, 'success')
         setStats(prev => ({
           ...prev,
-          coins: prev.coins + 100 // Bonus coins for achievements
+          coins: prev.coins + 150 // Increased bonus coins for achievements since XP is harder
         }))
       }
 
@@ -352,9 +386,30 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }))
   }
 
+  const purchaseTheme = (themeId: string, price: number) => {
+    if (price > 0) {
+      // Purchase theme
+      if (stats.coins >= price && !ownedThemes.includes(themeId)) {
+        setStats(prev => ({
+          ...prev,
+          coins: prev.coins - price
+        }))
+        setOwnedThemes(prev => [...prev, themeId])
+        setCurrentTheme(themeId)
+      }
+    } else {
+      // Apply owned theme
+      if (ownedThemes.includes(themeId) || themeId === 'default') {
+        setCurrentTheme(themeId)
+      }
+    }
+  }
+
   const value: GameContextType = {
     stats,
     foodEntries,
+    currentTheme,
+    ownedThemes,
     addFoodEntry,
     updateWeight,
     setTargetWeight,
@@ -362,7 +417,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     getWeeklyProgress,
     checkAchievements,
     getTodaysEntries,
-    getCaloriesForDate
+    getCaloriesForDate,
+    purchaseTheme
   }
 
   return (

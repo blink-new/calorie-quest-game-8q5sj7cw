@@ -1,7 +1,7 @@
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Home, Trophy, User, Settings } from 'lucide-react'
+import { Home, Trophy, User, Settings, ShoppingBag } from 'lucide-react'
 
 export const Navigation: React.FC = () => {
   const location = useLocation()
@@ -10,6 +10,7 @@ export const Navigation: React.FC = () => {
   const navItems = [
     { path: '/', icon: Home, label: 'Home' },
     { path: '/achievements', icon: Trophy, label: 'Achievements' },
+    { path: '/shop', icon: ShoppingBag, label: 'Shop' },
     { path: '/profile', icon: User, label: 'Profile' },
     { path: '/settings', icon: Settings, label: 'Settings' }
   ]
