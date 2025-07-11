@@ -9,9 +9,6 @@ import { Badge } from './ui/badge'
 import { useGame } from '../contexts/GameContext'
 import { useNotifications } from '../contexts/NotificationContext'
 import { Plus, Flame, Trophy, Zap, Target, Trash2, Activity } from 'lucide-react'
-import { AdBanner } from './AdBanner'
-import { NativeAdCard } from './NativeAdCard'
-import { RewardedAdCard } from './RewardedAdCard'
 
 export const CalorieTracker: React.FC = () => {
   const [isAddingFood, setIsAddingFood] = useState(false)
@@ -59,9 +56,6 @@ export const CalorieTracker: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Top Banner Ad */}
-      <AdBanner placement="top" />
-
       {/* Header with stats */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -117,20 +111,11 @@ export const CalorieTracker: React.FC = () => {
         </Card>
       </motion.div>
 
-      {/* Native Ad Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.15 }}
-      >
-        <NativeAdCard />
-      </motion.div>
-
       {/* Daily Calorie Goal */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2 }}
+        transition={{ delay: 0.15 }}
       >
         <Card className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30 border-green-200 dark:border-green-800">
           <CardHeader className="pb-3">
@@ -165,7 +150,7 @@ export const CalorieTracker: React.FC = () => {
             key={meal}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 + index * 0.1 }}
+            transition={{ delay: 0.2 + index * 0.1 }}
           >
             <Card>
               <CardHeader className="pb-3">
@@ -213,15 +198,6 @@ export const CalorieTracker: React.FC = () => {
           </motion.div>
         ))}
       </div>
-
-      {/* Rewarded Ad Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.8 }}
-      >
-        <RewardedAdCard />
-      </motion.div>
 
       {/* Add Food Button */}
       <motion.div
