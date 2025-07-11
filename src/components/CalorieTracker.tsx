@@ -8,7 +8,7 @@ import { Progress } from './ui/progress'
 import { Badge } from './ui/badge'
 import { useGame } from '../contexts/GameContext'
 import { useNotifications } from '../contexts/NotificationContext'
-import { Plus, Flame, Trophy, Zap, Target, Trash2 } from 'lucide-react'
+import { Plus, Flame, Trophy, Zap, Target, Trash2, Activity } from 'lucide-react'
 
 export const CalorieTracker: React.FC = () => {
   const [isAddingFood, setIsAddingFood] = useState(false)
@@ -16,7 +16,7 @@ export const CalorieTracker: React.FC = () => {
   const [calories, setCalories] = useState('')
   const [selectedMeal, setSelectedMeal] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast')
   
-  const { stats, addFoodEntry, removeFoodEntry, getDailyCalories, getTodaysEntries } = useGame()
+  const { stats, addFoodEntry, removeFoodEntry, getDailyCalories, getTodaysEntries, getDailyCaloriesBurned } = useGame()
   const { showInAppNotification } = useNotifications()
 
   const handleAddFood = () => {
@@ -69,18 +69,22 @@ export const CalorieTracker: React.FC = () => {
           <Trophy className="text-yellow-500" size={32} />
         </div>
         
-        <div className="flex justify-center space-x-4">
-          <Badge variant="secondary" className="flex items-center space-x-1">
+        <div className="grid grid-cols-2 gap-2 max-w-sm mx-auto">
+          <Badge variant="secondary" className="flex items-center space-x-1 justify-center">
             <Zap className="text-yellow-500" size={16} />
             <span>Level {stats.level}</span>
           </Badge>
-          <Badge variant="secondary" className="flex items-center space-x-1">
+          <Badge variant="secondary" className="flex items-center space-x-1 justify-center">
             <Flame className="text-orange-500" size={16} />
             <span>{stats.streak} day streak</span>
           </Badge>
-          <Badge variant="secondary" className="flex items-center space-x-1">
+          <Badge variant="secondary" className="flex items-center space-x-1 justify-center">
             <span>💰</span>
             <span>{stats.coins} coins</span>
+          </Badge>
+          <Badge variant="secondary" className="flex items-center space-x-1 justify-center">
+            <Activity className="text-blue-500" size={16} />
+            <span>{getDailyCaloriesBurned()} cal burned</span>
           </Badge>
         </div>
       </motion.div>

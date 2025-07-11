@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { CalorieTracker } from './components/CalorieTracker'
+import { ActivityTracker } from './components/ActivityTracker'
 import { Profile } from './components/Profile'
 import { Achievements } from './components/Achievements'
 import { Settings } from './components/Settings'
@@ -38,6 +39,7 @@ function App() {
                 <div className="container mx-auto px-4 py-6 max-w-md">
                   <Routes>
                     <Route path="/" element={<CalorieTracker />} />
+                    <Route path="/activity" element={<ActivityTracker />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/achievements" element={<Achievements />} />
                     <Route path="/shop" element={<Shop />} />
