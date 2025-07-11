@@ -43,6 +43,7 @@ interface GameContextType {
   currentTheme: string
   ownedThemes: string[]
   addFoodEntry: (entry: Omit<FoodEntry, 'id' | 'timestamp'>) => void
+  removeFoodEntry: (entryId: string) => void
   updateWeight: (weight: number) => void
   setTargetWeight: (weight: number) => void
   getDailyCalories: () => number
@@ -62,7 +63,7 @@ const defaultStats: GameStats = {
   streak: 0,
   totalDays: 0,
   achievements: [],
-  coins: 50, // Give players starting coins to explore the shop
+  coins: 10, // Reduced starting coins to make them more valuable
   caloriesLogged: 0,
   mealsLogged: 0,
   daysActive: 0
@@ -224,7 +225,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       xpToNextLevel: xpToNextLevel,
       caloriesLogged: prev.caloriesLogged + entry.calories,
       mealsLogged: prev.mealsLogged + 1,
-      coins: prev.coins + (leveledUp ? 100 : 5) // Increased level-up reward, reduced meal reward
+      coins: prev.coins + (leveledUp ? 50 : 2) // Reduced both level-up and meal rewards
     }))
 
     // Update streak
@@ -238,10 +239,50 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Show notifications
     if (leveledUp) {
-      showInAppNotification(`🎉 Level Up! You're now level ${newLevel}! +100 coins!`, 'success')
+      showInAppNotification(`🎉 Level Up! You're now level ${newLevel}! +50 coins!`, 'success')
     }
     
     showInAppNotification(`+${xpGained} XP! ${leveledUp ? '' : `${xpToNextLevel} XP to next level`}`, 'success')
+  }
+
+  const removeFoodEntry = (entryId: string) => {
+    const entryToRemove = foodEntries.find(entry => entry.id === entryId)
+    if (!entryToRemove) return
+    
+    setFoodEntries(prev => prev.filter(entry => entry.id !== entryId))
+    
+    // Update stats - subtract the removed entry's impact
+    const xpLost = Math.max(1, Math.floor(entryToRemove.calories / 50))
+    const newXp = Math.max(0, stats.xp - xpLost)
+    
+    // Recalculate level based on new XP
+    const xpRequiredForLevel = (level: number) => level * level * 50 + 50
+    let newLevel = 1
+    let totalXpNeeded = xpRequiredForLevel(newLevel)
+    
+    while (newXp >= totalXpNeeded) {
+      newLevel++
+      totalXpNeeded = xpRequiredForLevel(newLevel)
+    }
+    
+    const leveledDown = newLevel < stats.level
+    const xpToNextLevel = totalXpNeeded - newXp
+    
+    setStats(prev => ({
+      ...prev,
+      xp: newXp,
+      level: newLevel,
+      xpToNextLevel: xpToNextLevel,
+      caloriesLogged: Math.max(0, prev.caloriesLogged - entryToRemove.calories),
+      mealsLogged: Math.max(0, prev.mealsLogged - 1),
+      coins: Math.max(0, prev.coins - 2) // Remove the meal reward coins
+    }))
+    
+    if (leveledDown) {
+      showInAppNotification(`⬇️ Level down to ${newLevel}. Keep logging to level up again!`, 'info')
+    }
+    
+    showInAppNotification(`Food entry removed (-${xpLost} XP)`, 'info')
   }
 
   const updateWeight = (weight: number) => {
@@ -277,7 +318,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (lastLogDate === yesterdayString) {
         // Continue streak - reward bonus coins for maintaining streaks
-        const streakBonus = Math.min(20, Math.floor((stats.streak + 1) / 3) * 5) // 5 coins per 3-day streak milestone
+        const streakBonus = Math.min(15, Math.floor((stats.streak + 1) / 7) * 3) // 3 coins per 7-day streak milestone
         setStats(prev => ({
           ...prev,
           streak: prev.streak + 1,
@@ -368,7 +409,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         showInAppNotification(`🏆 Achievement Unlocked: ${achievement.title}!`, 'success')
         setStats(prev => ({
           ...prev,
-          coins: prev.coins + 150 // Increased bonus coins for achievements since XP is harder
+          coins: prev.coins + 25 // Significantly reduced achievement rewards
         }))
       }
 
@@ -411,6 +452,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     currentTheme,
     ownedThemes,
     addFoodEntry,
+    removeFoodEntry,
     updateWeight,
     setTargetWeight,
     getDailyCalories,

@@ -8,7 +8,7 @@ import { Progress } from './ui/progress'
 import { Badge } from './ui/badge'
 import { useGame } from '../contexts/GameContext'
 import { useNotifications } from '../contexts/NotificationContext'
-import { Plus, Flame, Trophy, Zap, Target } from 'lucide-react'
+import { Plus, Flame, Trophy, Zap, Target, Trash2 } from 'lucide-react'
 
 export const CalorieTracker: React.FC = () => {
   const [isAddingFood, setIsAddingFood] = useState(false)
@@ -16,7 +16,7 @@ export const CalorieTracker: React.FC = () => {
   const [calories, setCalories] = useState('')
   const [selectedMeal, setSelectedMeal] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast')
   
-  const { stats, addFoodEntry, getDailyCalories, getTodaysEntries } = useGame()
+  const { stats, addFoodEntry, removeFoodEntry, getDailyCalories, getTodaysEntries } = useGame()
   const { showInAppNotification } = useNotifications()
 
   const handleAddFood = () => {
@@ -170,9 +170,22 @@ export const CalorieTracker: React.FC = () => {
                   <p className="text-muted-foreground text-sm">No items logged</p>
                 ) : (
                   mealGroups[meal].map((entry) => (
-                    <div key={entry.id} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                    <div key={entry.id} className="flex justify-between items-center py-2 border-b last:border-b-0 group">
                       <span className="font-medium">{entry.name}</span>
-                      <span className="text-sm text-muted-foreground">{entry.calories} cal</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-muted-foreground">{entry.calories} cal</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            removeFoodEntry(entry.id)
+                            showInAppNotification('Food entry removed', 'info')
+                          }}
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
                     </div>
                   ))
                 )}
