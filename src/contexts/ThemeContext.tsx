@@ -49,6 +49,12 @@ const themeConfigs = {
     primary: 'red',
     secondary: 'rainbow',
     accent: 'purple'
+  },
+  dark: {
+    background: 'from-gray-900 via-slate-800 to-gray-900',
+    primary: 'gray',
+    secondary: 'slate',
+    accent: 'gray'
   }
 }
 
@@ -66,8 +72,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     // Apply theme to document body
-    document.body.className = `min-h-screen bg-gradient-to-br ${themeConfig.background}`
-  }, [themeConfig])
+    const isDarkMode = currentTheme === 'dark'
+    document.body.className = `min-h-screen bg-gradient-to-br ${themeConfig.background} ${isDarkMode ? 'dark' : ''}`
+    
+    // Also apply dark class to html element for better dark mode support
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [themeConfig, currentTheme])
 
   return (
     <ThemeContext.Provider value={{ currentTheme, themeConfig }}>

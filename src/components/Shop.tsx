@@ -170,14 +170,32 @@ const themes: Theme[] = [
       background: 'from-red-50 via-yellow-50 via-green-50 via-blue-50 to-purple-50'
     },
     rarity: 'legendary'
+  },
+  {
+    id: 'dark',
+    name: 'Dark Mode',
+    description: 'Sleek dark theme for night owls',
+    price: 250,
+    preview: {
+      gradient: 'from-gray-900 via-slate-800 to-gray-900',
+      cardBg: 'bg-gray-800',
+      accent: 'text-gray-300'
+    },
+    colors: {
+      primary: 'gray',
+      secondary: 'slate',
+      accent: 'gray',
+      background: 'from-gray-900 via-slate-800 to-gray-900'
+    },
+    rarity: 'rare'
   }
 ]
 
 const rarityColors = {
-  common: 'bg-gray-100 text-gray-700',
-  rare: 'bg-blue-100 text-blue-700',
-  epic: 'bg-purple-100 text-purple-700',
-  legendary: 'bg-yellow-100 text-yellow-700'
+  common: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+  rare: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+  epic: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+  legendary: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
 }
 
 const rarityIcons = {
@@ -237,12 +255,12 @@ export const Shop: React.FC = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="bg-gradient-to-r from-yellow-100 to-orange-100 border-yellow-200">
+        <Card className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 border-yellow-200 dark:border-yellow-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-center space-x-2">
-              <Coins className="text-yellow-600" size={24} />
-              <span className="text-2xl font-bold text-yellow-700">{stats.coins}</span>
-              <span className="text-yellow-600">coins</span>
+              <Coins className="text-yellow-600 dark:text-yellow-400" size={24} />
+              <span className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{stats.coins}</span>
+              <span className="text-yellow-600 dark:text-yellow-400">coins</span>
             </div>
           </CardContent>
         </Card>
@@ -257,7 +275,7 @@ export const Shop: React.FC = () => {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center space-x-2">
-              <Palette className="text-purple-600" size={20} />
+              <Palette className="text-purple-600 dark:text-purple-400" size={20} />
               <span>Current Theme</span>
             </CardTitle>
           </CardHeader>
@@ -320,8 +338,8 @@ export const Shop: React.FC = () => {
                     <div className="flex items-center space-x-2">
                       {theme.price > 0 && (
                         <div className="flex items-center space-x-1">
-                          <Coins size={16} className="text-yellow-600" />
-                          <span className="font-semibold text-yellow-700">{theme.price}</span>
+                          <Coins size={16} className="text-yellow-600 dark:text-yellow-400" />
+                          <span className="font-semibold text-yellow-700 dark:text-yellow-300">{theme.price}</span>
                         </div>
                       )}
                       {theme.price === 0 && (

@@ -16,7 +16,7 @@ export const Navigation: React.FC = () => {
   ]
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 mx-auto max-w-md">
+    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-2 mx-auto max-w-md">
       <div className="flex justify-around items-center">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path
@@ -30,8 +30,8 @@ export const Navigation: React.FC = () => {
               onClick={() => navigate(item.path)}
               className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-colors ${
                 isActive 
-                  ? 'text-purple-600 bg-purple-50' 
-                  : 'text-gray-600 hover:text-purple-600'
+                  ? 'text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-900/20' 
+                  : 'text-gray-600 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400'
               }`}
             >
               <Icon size={20} />
@@ -39,7 +39,7 @@ export const Navigation: React.FC = () => {
               {isActive && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600 rounded-full"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600 dark:bg-purple-400 rounded-full"
                   initial={false}
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />

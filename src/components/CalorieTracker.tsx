@@ -95,7 +95,7 @@ export const CalorieTracker: React.FC = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="bg-gradient-to-r from-purple-100 to-pink-100 border-purple-200">
+        <Card className="bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 border-purple-200 dark:border-purple-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium">XP Progress</span>
@@ -117,16 +117,16 @@ export const CalorieTracker: React.FC = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="bg-gradient-to-r from-green-100 to-blue-100 border-green-200">
+        <Card className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30 border-green-200 dark:border-green-800">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center space-x-2">
-              <Target className="text-green-600" size={20} />
+              <Target className="text-green-600 dark:text-green-400" size={20} />
               <span>Daily Goal</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">
+              <div className="text-3xl font-bold text-green-600 dark:text-green-400">
                 {dailyCalories}
               </div>
               <div className="text-sm text-muted-foreground">
@@ -135,7 +135,7 @@ export const CalorieTracker: React.FC = () => {
             </div>
             <Progress value={progressPercentage} className="h-3" />
             <div className="text-center text-sm">
-              <span className="font-medium text-green-600">
+              <span className="font-medium text-green-600 dark:text-green-400">
                 {caloriesRemaining} calories remaining
               </span>
             </div>
@@ -225,7 +225,7 @@ export const CalorieTracker: React.FC = () => {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-lg p-6 w-full max-w-md"
+            className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md"
           >
             <h2 className="text-xl font-bold mb-4">Add Food</h2>
             <div className="space-y-4">

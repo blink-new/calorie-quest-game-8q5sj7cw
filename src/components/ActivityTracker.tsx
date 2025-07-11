@@ -110,16 +110,16 @@ export const ActivityTracker: React.FC = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="bg-gradient-to-r from-blue-100 to-green-100 border-blue-200">
+        <Card className="bg-gradient-to-r from-blue-100 to-green-100 dark:from-blue-900/30 dark:to-green-900/30 border-blue-200 dark:border-blue-800">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center space-x-2">
-              <Target className="text-blue-600" size={20} />
+              <Target className="text-blue-600 dark:text-blue-400" size={20} />
               <span>Daily Burn Goal</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                 {dailyCaloriesBurned}
               </div>
               <div className="text-sm text-muted-foreground">
@@ -128,7 +128,7 @@ export const ActivityTracker: React.FC = () => {
             </div>
             <Progress value={progressPercentage} className="h-3" />
             <div className="text-center text-sm">
-              <span className="font-medium text-blue-600">
+              <span className="font-medium text-blue-600 dark:text-blue-400">
                 {Math.max(0, targetCaloriesBurned - dailyCaloriesBurned)} calories to go
               </span>
             </div>
@@ -238,7 +238,7 @@ export const ActivityTracker: React.FC = () => {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
           >
             <h2 className="text-xl font-bold mb-4">Log Activity</h2>
             <div className="space-y-4">
