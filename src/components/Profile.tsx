@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
-
 import { useGame } from '../contexts/GameContext'
 import { useNotifications } from '../contexts/NotificationContext'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts'
