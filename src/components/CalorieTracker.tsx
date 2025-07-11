@@ -14,9 +14,12 @@ export const CalorieTracker: React.FC = () => {
   const [isAddingFood, setIsAddingFood] = useState(false)
   const [foodName, setFoodName] = useState('')
   const [calories, setCalories] = useState('')
+  const [protein, setProtein] = useState('')
+  const [carbs, setCarbs] = useState('')
+  const [fat, setFat] = useState('')
   const [selectedMeal, setSelectedMeal] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast')
   
-  const { stats, addFoodEntry, removeFoodEntry, getDailyCalories, getTodaysEntries, getDailyCaloriesBurned } = useGame()
+  const { stats, addFoodEntry, removeFoodEntry, getDailyCalories, getDailyMacros, getTodaysEntries, getDailyCaloriesBurned } = useGame()
   const { showInAppNotification } = useNotifications()
 
   const handleAddFood = () => {
@@ -28,20 +31,34 @@ export const CalorieTracker: React.FC = () => {
     addFoodEntry({
       name: foodName,
       calories: parseInt(calories),
+      protein: parseFloat(protein) || 0,
+      carbs: parseFloat(carbs) || 0,
+      fat: parseFloat(fat) || 0,
       meal: selectedMeal
     })
 
     setFoodName('')
     setCalories('')
+    setProtein('')
+    setCarbs('')
+    setFat('')
     setIsAddingFood(false)
     showInAppNotification('Food logged successfully! 🍽️', 'success')
   }
 
   const dailyCalories = getDailyCalories()
+  const dailyMacros = getDailyMacros()
   const todaysEntries = getTodaysEntries()
   const targetCalories = 2000 // This could be calculated based on user info
   const caloriesRemaining = Math.max(0, targetCalories - dailyCalories)
   const progressPercentage = Math.min(100, (dailyCalories / targetCalories) * 100)
+
+  // Macro targets based on common recommendations
+  const macroTargets = {
+    protein: Math.round(targetCalories * 0.25 / 4), // 25% of calories, 4 cal per gram
+    carbs: Math.round(targetCalories * 0.45 / 4), // 45% of calories, 4 cal per gram
+    fat: Math.round(targetCalories * 0.30 / 9) // 30% of calories, 9 cal per gram
+  }
 
   const mealGroups = {
     breakfast: todaysEntries.filter(entry => entry.meal === 'breakfast'),
@@ -52,6 +69,14 @@ export const CalorieTracker: React.FC = () => {
 
   const getMealCalories = (meal: keyof typeof mealGroups) => {
     return mealGroups[meal].reduce((sum, entry) => sum + entry.calories, 0)
+  }
+
+  const getMealMacros = (meal: keyof typeof mealGroups) => {
+    return mealGroups[meal].reduce((sum, entry) => ({
+      protein: sum.protein + entry.protein,
+      carbs: sum.carbs + entry.carbs,
+      fat: sum.fat + entry.fat
+    }), { protein: 0, carbs: 0, fat: 0 })
   }
 
   return (
@@ -143,6 +168,121 @@ export const CalorieTracker: React.FC = () => {
         </Card>
       </motion.div>
 
+      {/* Macro Targets */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Card className="bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 border-blue-200 dark:border-blue-800">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center space-x-2">
+              <span>🍽️</span>
+              <span>Macro Targets</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Protein */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium flex items-center space-x-1">
+                  <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+                  <span>Protein</span>
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {dailyMacros.protein}g / {macroTargets.protein}g
+                </span>
+              </div>
+              <Progress 
+                value={Math.min(100, (dailyMacros.protein / macroTargets.protein) * 100)} 
+                className="h-2"
+              />
+            </div>
+            
+            {/* Carbs */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium flex items-center space-x-1">
+                  <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                  <span>Carbs</span>
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {dailyMacros.carbs}g / {macroTargets.carbs}g
+                </span>
+              </div>
+              <Progress 
+                value={Math.min(100, (dailyMacros.carbs / macroTargets.carbs) * 100)} 
+                className="h-2"
+              />
+            </div>
+            
+            {/* Fat */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium flex items-center space-x-1">
+                  <span className="w-3 h-3 bg-yellow-500 rounded-full"></span>
+                  <span>Fat</span>
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {dailyMacros.fat}g / {macroTargets.fat}g
+                </span>
+              </div>
+              <Progress 
+                value={Math.min(100, (dailyMacros.fat / macroTargets.fat) * 100)} 
+                className="h-2"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Daily Macro Intake */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.25 }}
+      >
+        <Card className="bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 border-orange-200 dark:border-orange-800">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center space-x-2">
+              <span>📊</span>
+              <span>Daily Macro Summary</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="space-y-1">
+                <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                  {dailyMacros.protein}g
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Protein
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {dailyMacros.carbs}g
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Carbs
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                  {dailyMacros.fat}g
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Fat
+                </div>
+              </div>
+            </div>
+            <div className="text-center text-sm text-muted-foreground">
+              Total: {dailyMacros.protein + dailyMacros.carbs + dailyMacros.fat}g macros
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Meal Sections */}
       <div className="space-y-4">
         {(['breakfast', 'lunch', 'dinner', 'snack'] as const).map((meal, index) => (
@@ -150,7 +290,7 @@ export const CalorieTracker: React.FC = () => {
             key={meal}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 + index * 0.1 }}
+            transition={{ delay: 0.3 + index * 0.1 }}
           >
             <Card>
               <CardHeader className="pb-3">
@@ -164,9 +304,20 @@ export const CalorieTracker: React.FC = () => {
                     </span>
                     <span className="capitalize">{meal}</span>
                   </div>
-                  <Badge variant="outline">
-                    {getMealCalories(meal)} cal
-                  </Badge>
+                  <div className="flex items-center space-x-2">
+                    <Badge variant="outline">
+                      {getMealCalories(meal)} cal
+                    </Badge>
+                    <Badge variant="outline">
+                      {getMealMacros(meal).protein}g P
+                    </Badge>
+                    <Badge variant="outline">
+                      {getMealMacros(meal).carbs}g C
+                    </Badge>
+                    <Badge variant="outline">
+                      {getMealMacros(meal).fat}g F
+                    </Badge>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
@@ -178,6 +329,9 @@ export const CalorieTracker: React.FC = () => {
                       <span className="font-medium">{entry.name}</span>
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-muted-foreground">{entry.calories} cal</span>
+                        <span className="text-sm text-muted-foreground">{entry.protein}g protein</span>
+                        <span className="text-sm text-muted-foreground">{entry.carbs}g carbs</span>
+                        <span className="text-sm text-muted-foreground">{entry.fat}g fat</span>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -203,7 +357,7 @@ export const CalorieTracker: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.7 }}
+        transition={{ delay: 0.8 }}
         className="fixed bottom-24 right-4"
       >
         <Button
@@ -267,6 +421,50 @@ export const CalorieTracker: React.FC = () => {
                   value={calories}
                   onChange={(e) => setCalories(e.target.value)}
                 />
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium">Macronutrients (grams)</Label>
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  <div>
+                    <Label htmlFor="protein" className="text-xs text-muted-foreground">Protein</Label>
+                    <Input
+                      id="protein"
+                      type="number"
+                      placeholder="30"
+                      value={protein}
+                      onChange={(e) => setProtein(e.target.value)}
+                      className="text-sm"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="carbs" className="text-xs text-muted-foreground">Carbs</Label>
+                    <Input
+                      id="carbs"
+                      type="number"
+                      placeholder="40"
+                      value={carbs}
+                      onChange={(e) => setCarbs(e.target.value)}
+                      className="text-sm"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="fat" className="text-xs text-muted-foreground">Fat</Label>
+                    <Input
+                      id="fat"
+                      type="number"
+                      placeholder="10"
+                      value={fat}
+                      onChange={(e) => setFat(e.target.value)}
+                      className="text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Optional: Leave blank if unknown
+                </div>
               </div>
               
               <div className="flex space-x-2">

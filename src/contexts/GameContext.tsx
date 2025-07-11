@@ -38,6 +38,9 @@ interface FoodEntry {
   id: string
   name: string
   calories: number
+  protein: number // in grams
+  carbs: number // in grams
+  fat: number // in grams
   timestamp: Date
   meal: 'breakfast' | 'lunch' | 'dinner' | 'snack'
 }
@@ -66,6 +69,7 @@ interface GameContextType {
   updateWeight: (weight: number) => void
   setTargetWeight: (weight: number) => void
   getDailyCalories: () => number
+  getDailyMacros: () => { protein: number; carbs: number; fat: number }
   getDailyActivities: () => ActivityEntry[]
   getDailyCaloriesBurned: () => number
   getWeeklyProgress: () => number[]
@@ -258,7 +262,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const parsedEntries = JSON.parse(savedEntries)
       setFoodEntries(parsedEntries.map((entry: FoodEntry & { timestamp: string }) => ({
         ...entry,
-        timestamp: new Date(entry.timestamp)
+        timestamp: new Date(entry.timestamp),
+        // Migration: Add default macro values if they don't exist
+        protein: entry.protein ?? 0,
+        carbs: entry.carbs ?? 0,
+        fat: entry.fat ?? 0
       })))
     }
 
@@ -532,6 +540,18 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return getCaloriesForDate(today)
   }
 
+  const getDailyMacros = () => {
+    const today = new Date()
+    const todayString = today.toDateString()
+    return foodEntries
+      .filter(entry => entry.timestamp.toDateString() === todayString)
+      .reduce((total, entry) => ({
+        protein: total.protein + entry.protein,
+        carbs: total.carbs + entry.carbs,
+        fat: total.fat + entry.fat
+      }), { protein: 0, carbs: 0, fat: 0 })
+  }
+
   const getDailyActivities = () => {
     const today = new Date()
     return activityEntries.filter(entry => entry.timestamp.toDateString() === today.toDateString())
@@ -757,6 +777,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updateWeight,
     setTargetWeight,
     getDailyCalories,
+    getDailyMacros,
     getDailyActivities,
     getDailyCaloriesBurned,
     getWeeklyProgress,
