@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react'
+import React, { createContext, useContext, useEffect, useMemo } from 'react'
 import { useGame } from './GameContext'
 
 const themeConfigs = {
@@ -68,12 +68,16 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentTheme } = useGame()
 
-  const themeConfig = themeConfigs[currentTheme as keyof typeof themeConfigs] || themeConfigs.default
+  const themeConfig = useMemo(() => {
+    return themeConfigs[currentTheme as keyof typeof themeConfigs] || themeConfigs.default
+  }, [currentTheme])
 
   useEffect(() => {
     // Apply theme to document body
     const isDarkMode = currentTheme === 'dark'
-    document.body.className = `min-h-screen bg-gradient-to-br ${themeConfig.background} ${isDarkMode ? 'dark' : ''}`
+    const config = themeConfigs[currentTheme as keyof typeof themeConfigs] || themeConfigs.default
+    
+    document.body.className = `min-h-screen bg-gradient-to-br ${config.background} ${isDarkMode ? 'dark' : ''}`
     
     // Also apply dark class to html element for better dark mode support
     if (isDarkMode) {
@@ -81,7 +85,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else {
       document.documentElement.classList.remove('dark')
     }
-  }, [themeConfig, currentTheme])
+  }, [currentTheme])
 
   return (
     <ThemeContext.Provider value={{ currentTheme, themeConfig }}>
