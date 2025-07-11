@@ -9,6 +9,9 @@ import { Badge } from './ui/badge'
 import { useGame } from '../contexts/GameContext'
 import { useNotifications } from '../contexts/NotificationContext'
 import { Plus, Flame, Trophy, Zap, Target, Trash2, Activity } from 'lucide-react'
+import { AdBanner } from './AdBanner'
+import { NativeAdCard } from './NativeAdCard'
+import { RewardedAdCard } from './RewardedAdCard'
 
 export const CalorieTracker: React.FC = () => {
   const [isAddingFood, setIsAddingFood] = useState(false)
@@ -56,6 +59,9 @@ export const CalorieTracker: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-20">
+      {/* Top Banner Ad */}
+      <AdBanner placement="top" />
+
       {/* Header with stats */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -109,6 +115,15 @@ export const CalorieTracker: React.FC = () => {
             />
           </CardContent>
         </Card>
+      </motion.div>
+
+      {/* Native Ad Card */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.15 }}
+      >
+        <NativeAdCard />
       </motion.div>
 
       {/* Daily Calorie Goal */}
@@ -198,6 +213,15 @@ export const CalorieTracker: React.FC = () => {
           </motion.div>
         ))}
       </div>
+
+      {/* Rewarded Ad Card */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.8 }}
+      >
+        <RewardedAdCard />
+      </motion.div>
 
       {/* Add Food Button */}
       <motion.div
